@@ -41,4 +41,11 @@ for (const dir of targets) {
   if (readFileSync(outPath, "utf8") !== LINE) {
     throw new Error("entry.txt does not match the entry after writing");
   }
+  // Byte-length check: the string comparison above can pass even if the
+  // file's encoding differs (e.g. a BOM or a different normalization
+  // form), so require the on-disk byte count to equal the UTF-8 byte
+  // length of LINE exactly — no hidden prefix, no trailing newline.
+  if (readFileSync(outPath).length !== Buffer.byteLength(LINE, "utf8")) {
+    throw new Error("entry.txt byte length does not match the entry");
+  }
 }
